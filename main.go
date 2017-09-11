@@ -19,24 +19,16 @@ func main() {
 		playersArray = append(playersArray, &p)
 	}
 
-	// human := players.NewHumanPlayer()
-	// playersArray = append(playersArray, human)
+	human := players.NewHumanPlayer()
+	playersArray = append(playersArray, human)
 
 	bank := players.GetBank()
 
 	// init
-	for i := 0; i < 2; i++ {
-		for _, p := range playersArray {
-			c := d.DealNextCard()
-			p.AddNewCard(c)
-		}
-
-		if bank.GetValue() < 17 {
-			c := d.DealNextCard()
-			bank.AddNewCard(c)
-		}
+	for _, p := range playersArray {
+		p.Init(&d)
 	}
-	fmt.Println()
+	bank.Init(&d)
 
 	losingPlayers := 0
 	// Actual play
@@ -47,46 +39,30 @@ func main() {
 	fmt.Println()
 
 	for _, p := range playersArray {
-		for p.ShouldPlay() {
-			fmt.Printf("%s\n", p.GetName())
-			c := d.DealNextCard()
-			fmt.Printf("\ttaking a card: %s\n", c.Get())
-			p.AddNewCard(c)
-			fmt.Printf("\tNew hand value: %d\n", p.GetValue())
-			fmt.Printf("\tNew hand: %s\n", p.GetHand())
-			fmt.Println()
-		}
-		if p.GetValue() > 21 {
+		p.Play(&d)
+		if p.GetHandValue() > 21 {
 			losingPlayers += 1
 		}
 	}
 
 	if losingPlayers < len(playersArray) {
-		for bank.ShouldPlay() {
-			fmt.Printf("bank\n")
-			c := d.DealNextCard()
-			fmt.Printf("\ttaking a card: %s\n", c.Get())
-			bank.AddNewCard(c)
-			fmt.Printf("\tNew hand value: %d\n", bank.GetValue())
-			fmt.Printf("\tNew hand: %s\n", bank.GetHand())
-			fmt.Println()
-		}
+		bank.Play(&d)
 	} else {
 		fmt.Printf("bank not playing, everyone lost\n")
 	}
 
-	bankVal := bank.GetValue()
+	bankVal := bank.GetHandValue()
 	if bankVal > 21 {
 		fmt.Println("Bank lost")
 	}
 	for _, p := range playersArray {
-		pVal := p.GetValue()
+		pVal := p.GetHandValue()
 		if pVal > 21 || pVal < bankVal && bankVal <= 21 {
-			fmt.Printf("%s lost with %d\n", p.GetName(), p.GetValue())
+			fmt.Printf("%s lost with %d\n", p.GetName(), p.GetHandValue())
 		} else if pVal == bankVal {
-			fmt.Printf("%s pushed with %d\n", p.GetName(), p.GetValue())
+			fmt.Printf("%s pushed with %d\n", p.GetName(), p.GetHandValue())
 		} else {
-			fmt.Printf("%s won with %d\n", p.GetName(), p.GetValue())
+			fmt.Printf("%s won with %d\n", p.GetName(), p.GetHandValue())
 		}
 	}
 }

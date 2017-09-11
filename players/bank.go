@@ -1,6 +1,10 @@
 package players
 
-import "github.com/educlos/blackjack/cards"
+import (
+	"fmt"
+
+	"github.com/educlos/blackjack/cards"
+)
 
 type Bank struct {
 	name string
@@ -21,13 +25,9 @@ func (b *Bank) GetName() string {
 	return b.name
 }
 
-func (p *Bank) AddNewCard(c cards.Card) {
-	p.hand = append(p.hand, c)
-}
-
-func (p *Bank) GetValue() (value int) {
+func (b *Bank) GetHandValue() (value int) {
 	aceCount := 0
-	for _, c := range p.hand {
+	for _, c := range b.hand {
 		if c.Value() == "A" {
 			aceCount += 1
 		} else {
@@ -47,19 +47,41 @@ func (p *Bank) GetValue() (value int) {
 	return
 }
 
-func (p *Bank) GetHand() string {
+func (b *Bank) GetHand() string {
 	out := ""
-	for _, c := range p.hand {
+	for _, c := range b.hand {
 		out += c.Get() + " "
 	}
 
 	return out
 }
 
-// To improve
-func (p *Bank) ShouldPlay() bool {
-	if p.GetValue() < 17 {
+func (b *Bank) Init(d *cards.Deck) {
+	for i := 0; i < 2; i++ {
+		c := d.DealNextCard()
+		b.addNewCard(c)
+	}
+}
+
+func (b *Bank) Play(d *cards.Deck) {
+	for b.shouldPlay() {
+		fmt.Printf("%s\n", b.GetName())
+		c := d.DealNextCard()
+		fmt.Printf("\ttaking a card: %s\n", c.Get())
+		b.addNewCard(c)
+		fmt.Printf("\tNew hand value: %d\n", b.GetHandValue())
+		fmt.Printf("\tNew hand: %s\n", b.GetHand())
+		fmt.Println()
+	}
+}
+
+func (b *Bank) shouldPlay() bool {
+	if b.GetHandValue() < 17 {
 		return true
 	}
 	return false
+}
+
+func (b *Bank) addNewCard(c cards.Card) {
+	b.hand = append(b.hand, c)
 }

@@ -24,11 +24,7 @@ func (p *Human) GetName() string {
 	return p.Name
 }
 
-func (p *Human) AddNewCard(c cards.Card) {
-	p.Hand = append(p.Hand, c)
-}
-
-func (p *Human) GetValue() (value int) {
+func (p *Human) GetHandValue() (value int) {
 	aceCount := 0
 	for _, c := range p.Hand {
 		if c.Value() == "A" {
@@ -59,8 +55,27 @@ func (p *Human) GetHand() string {
 	return out
 }
 
-func (p *Human) ShouldPlay() bool {
-	fmt.Printf("Should player %s get an other card? (current hand: %s, value: %d)\n", p.Name, p.GetHand(), p.GetValue())
+func (p *Human) Init(d *cards.Deck) {
+	for i := 0; i < 2; i++ {
+		c := d.DealNextCard()
+		p.addNewCard(c)
+	}
+}
+
+func (p *Human) Play(d *cards.Deck) {
+	for p.shouldPlay() {
+		fmt.Printf("%s\n", p.GetName())
+		c := d.DealNextCard()
+		fmt.Printf("\ttaking a card: %s\n", c.Get())
+		p.addNewCard(c)
+		fmt.Printf("\tNew hand value: %d\n", p.GetHandValue())
+		fmt.Printf("\tNew hand: %s\n", p.GetHand())
+		fmt.Println()
+	}
+}
+
+func (p *Human) shouldPlay() bool {
+	fmt.Printf("Should player %s get an other card? (current hand: %s, value: %d)\n", p.Name, p.GetHand(), p.GetHandValue())
 	answer := ""
 	fmt.Scanf("%s\n", &answer)
 	switch strings.ToLower(answer) {
@@ -72,4 +87,8 @@ func (p *Human) ShouldPlay() bool {
 
 	fmt.Printf("Unknown input %s. Skipping turn\n", answer)
 	return false
+}
+
+func (p *Human) addNewCard(c cards.Card) {
+	p.Hand = append(p.Hand, c)
 }
