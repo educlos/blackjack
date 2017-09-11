@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/Etienne42/blackjack/cards"
+	"github.com/educlos/blackjack/cards"
 )
 
 type Human struct {

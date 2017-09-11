@@ -1,6 +1,6 @@
 package players
 
-import "github.com/Etienne42/blackjack/cards"
+import "github.com/educlos/blackjack/cards"
 
 type BankAlike struct {
 	Name string

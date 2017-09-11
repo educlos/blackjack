@@ -3,8 +3,8 @@ package main
 import (
 	"fmt"
 
-	"github.com/Etienne42/blackjack/cards"
-	"github.com/Etienne42/blackjack/players"
+	"github.com/educlos/blackjack/cards"
+	"github.com/educlos/blackjack/players"
 )
 
 var numberOfDeck = 3
