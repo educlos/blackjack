@@ -13,14 +13,19 @@ var numberOfPlayers = 3
 func main() {
 	d := cards.GetNewDeck(numberOfDeck)
 
-	var playersArray []players.Player
-	for i := 0; i < numberOfPlayers; i++ {
-		p := players.BankAlike{Name: fmt.Sprintf("player%d", i)}
-		playersArray = append(playersArray, &p)
-	}
+	var playersArray []players.Playable
 
-	human := players.NewHumanPlayer()
-	playersArray = append(playersArray, human)
+	bankAlikePlayer := players.NewBankAlike("bankAlike")
+	playersArray = append(playersArray, &bankAlikePlayer)
+
+	randomPlayer := players.NewRandomPlayer("random")
+	playersArray = append(playersArray, &randomPlayer)
+
+	smartRandomPlayer := players.NewSmartRandomPlayer("smartRandom")
+	playersArray = append(playersArray, &smartRandomPlayer)
+
+	// humanPlayer := players.NewHumanPlayer()
+	// playersArray = append(playersArray, &humanPlayer)
 
 	bank := players.GetBank()
 
@@ -52,6 +57,7 @@ func main() {
 	}
 
 	bankVal := bank.GetHandValue()
+	fmt.Printf("\nBank's hand: %s\n", bank.GetHandWithShadow())
 	if bankVal > 21 {
 		fmt.Println("Bank lost")
 	}
@@ -59,7 +65,7 @@ func main() {
 		pVal := p.GetHandValue()
 		if pVal > 21 || pVal < bankVal && bankVal <= 21 {
 			fmt.Printf("%s lost with %d\n", p.GetName(), p.GetHandValue())
-		} else if pVal == bankVal {
+		} else if pVal == bankVal && pVal != 21 {
 			fmt.Printf("%s pushed with %d\n", p.GetName(), p.GetHandValue())
 		} else {
 			fmt.Printf("%s won with %d\n", p.GetName(), p.GetHandValue())

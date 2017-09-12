@@ -16,12 +16,12 @@ func GetNewDeck(howMany int) Deck {
 	for i := 0; i < howMany; i++ {
 		for _, v := range values {
 			for _, c := range colors {
-				tmp = append(tmp, Card{v, c})
+				tmp = append(tmp, Card{value: v, color: c})
 			}
 		}
 	}
 
-	rand.Seed(time.Now().Unix())
+	rand.Seed(time.Now().UnixNano())
 	for i := len(tmp) - 1; i > 0; i-- {
 		j := rand.Intn(i + 1)
 		tmp[i], tmp[j] = tmp[j], tmp[i]

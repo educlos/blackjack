@@ -2,20 +2,22 @@ package players
 
 import (
 	"fmt"
+	"math/rand"
+	"time"
 
 	"github.com/educlos/blackjack/cards"
 )
 
-type BankAlike struct {
+type RandomPlayer struct {
 	Player
 }
 
-func NewBankAlike(name string) (b BankAlike) {
-	b.Name = name
+func NewRandomPlayer(name string) (r RandomPlayer) {
+	r.Name = name
 	return
 }
 
-func (p *BankAlike) Play(d *cards.Deck) {
+func (p *RandomPlayer) Play(d *cards.Deck) {
 	for p.shouldPlay() {
 		fmt.Printf("%s\n", p.GetName())
 		c := d.DealNextCard()
@@ -27,8 +29,13 @@ func (p *BankAlike) Play(d *cards.Deck) {
 	}
 }
 
-func (p *BankAlike) shouldPlay() bool {
-	if p.GetHandValue() < 17 {
+func (p *RandomPlayer) shouldPlay() bool {
+	if p.GetHandValue() >= 21 {
+		return false
+	}
+	rand.Seed(time.Now().UnixNano())
+	num := rand.Intn(10)
+	if num < 5 {
 		return true
 	}
 	return false

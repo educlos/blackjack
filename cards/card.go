@@ -3,8 +3,17 @@ package cards
 import "fmt"
 
 type Card struct {
-	value string // 2 -> 10, J, Q, K, A
-	color string // S, H, D, C
+	value  string // 2 -> 10, J, Q, K, A
+	color  string // S, H, D, C
+	shadow bool
+}
+
+func (c *Card) SetShadowState(newState bool) {
+	c.shadow = newState
+}
+
+func (c *Card) IsShadow() bool {
+	return c.shadow
 }
 
 func (c *Card) Get() string {
