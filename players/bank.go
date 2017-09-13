@@ -23,8 +23,20 @@ func GetBank() *Bank {
 	return b
 }
 
-func NewBank() (p Bank) {
-	p.SetName("bank")
+func NewBank() *Bank {
+	p := Bank{Name: "bank"}
+	b = &p
+	return &p
+}
+
+func GetBankHandValue() (value int) {
+	for _, c := range b.Hand {
+		if c.Value() == "A" {
+			value += 11
+		} else {
+			value += c.GetPoints()
+		}
+	}
 	return
 }
 
@@ -94,6 +106,9 @@ func (p *Bank) GetHand() string {
 	for _, c := range p.Hand {
 		out += c.Get() + " "
 	}
+	if p.shadowCard.IsShadow() {
+		out += "🂠"
+	}
 
 	return out
 }
@@ -115,8 +130,8 @@ func (p *Bank) Init(d *cards.Deck) {
 	p.addNewCard(c)
 
 	c = d.DealNextCard()
+	p.shadowCard = c
 	c.SetShadowState(true)
-	b.shadowCard = c
 }
 
 func (p *Bank) addNewCard(c cards.Card) {

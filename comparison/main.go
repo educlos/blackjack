@@ -9,8 +9,7 @@ import (
 )
 
 var numberOfRounds = 10000
-var numberOfDeck = 3
-var numberOfPlayers = 3
+var numberOfDeck = 4
 
 func main() {
 
@@ -23,6 +22,7 @@ func main() {
 		BankAlike   counts `json:"bank-alike"`
 		Random      counts `json:"random"`
 		SmartRandom counts `json:"smart-random"`
+		Basic       counts `json:"basic"`
 	}
 
 	for i := 0; i < numberOfRounds; i++ {
@@ -36,6 +36,9 @@ func main() {
 
 		smartRandomPlayer := players.NewSmartRandomPlayer("smartRandom")
 		playersArray = append(playersArray, &smartRandomPlayer)
+
+		basicPlayer := players.NewBasic("basicPlayer")
+		playersArray = append(playersArray, &basicPlayer)
 
 		bank := players.NewBank()
 
@@ -81,6 +84,8 @@ func main() {
 					stats.Random.Loss = stats.Random.Loss + 1
 				case "smartRandom":
 					stats.SmartRandom.Loss = stats.SmartRandom.Loss + 1
+				case "basicPlayer":
+					stats.Basic.Loss = stats.Basic.Loss + 1
 				}
 			} else if pVal == bankVal {
 				switch p.GetName() {
@@ -90,6 +95,8 @@ func main() {
 					stats.Random.Ties = stats.Random.Ties + 1
 				case "smartRandom":
 					stats.SmartRandom.Ties = stats.SmartRandom.Ties + 1
+				case "basicPlayer":
+					stats.Basic.Ties = stats.Basic.Ties + 1
 				}
 			} else {
 				switch p.GetName() {
@@ -99,6 +106,8 @@ func main() {
 					stats.Random.Victories = stats.Random.Victories + 1
 				case "smartRandom":
 					stats.SmartRandom.Victories = stats.SmartRandom.Victories + 1
+				case "basicPlayer":
+					stats.Basic.Victories = stats.Basic.Victories + 1
 				}
 			}
 		}

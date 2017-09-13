@@ -11,8 +11,9 @@ type Playable interface {
 }
 
 type Player struct {
-	Name string
-	Hand []cards.Card
+	Name       string
+	Hand       []cards.Card
+	IsHandSoft bool
 }
 
 func (p *Player) GetName() string {
@@ -37,6 +38,7 @@ func (p *Player) GetHandValue() (value int) {
 		tmp := value + 11
 		if tmp > 17 && tmp <= 21 {
 			value += 11
+			p.IsHandSoft = true
 		} else {
 			value += 1
 		}

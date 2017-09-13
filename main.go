@@ -7,8 +7,7 @@ import (
 	"github.com/educlos/blackjack/players"
 )
 
-var numberOfDeck = 3
-var numberOfPlayers = 3
+var numberOfDeck = 4
 
 func main() {
 	d := cards.GetNewDeck(numberOfDeck)
@@ -23,6 +22,9 @@ func main() {
 
 	smartRandomPlayer := players.NewSmartRandomPlayer("smartRandom")
 	playersArray = append(playersArray, &smartRandomPlayer)
+
+	basicPlayer := players.NewBasic("basicPlayer")
+	playersArray = append(playersArray, &basicPlayer)
 
 	// humanPlayer := players.NewHumanPlayer()
 	// playersArray = append(playersArray, &humanPlayer)
