@@ -12,12 +12,13 @@ type SmartRandomPlayer struct {
 	Player
 }
 
-func NewSmartRandomPlayer(name string) (r SmartRandomPlayer) {
+func NewSmartRandomPlayer(name string, walletValue int) (r SmartRandomPlayer) {
 	r.Name = name
+	r.Wallet = walletValue
 	return
 }
 
-func (p *SmartRandomPlayer) Play(d *cards.Deck) {
+func (p *SmartRandomPlayer) Play(d *cards.Deck, currentHandValue int) {
 	for p.shouldPlay() {
 		fmt.Printf("%s\n", p.GetName())
 		c := d.DealNextCard()
@@ -64,4 +65,14 @@ func (p *SmartRandomPlayer) shouldPlay() bool {
 	}
 
 	return false
+}
+
+func (p *SmartRandomPlayer) Bet(ammount int) {
+	if ammount > p.Wallet {
+		p.CurrentBet = p.Wallet
+		p.Wallet = 0
+	} else {
+		p.CurrentBet += ammount
+		p.Wallet -= ammount
+	}
 }

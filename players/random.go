@@ -12,12 +12,13 @@ type RandomPlayer struct {
 	Player
 }
 
-func NewRandomPlayer(name string) (r RandomPlayer) {
+func NewRandomPlayer(name string, walletValue int) (r RandomPlayer) {
 	r.Name = name
+	r.Wallet = walletValue
 	return
 }
 
-func (p *RandomPlayer) Play(d *cards.Deck) {
+func (p *RandomPlayer) Play(d *cards.Deck, currentHandValue int) {
 	for p.shouldPlay() {
 		fmt.Printf("%s\n", p.GetName())
 		c := d.DealNextCard()
@@ -39,4 +40,14 @@ func (p *RandomPlayer) shouldPlay() bool {
 		return true
 	}
 	return false
+}
+
+func (p *RandomPlayer) Bet(ammount int) {
+	if ammount > p.Wallet {
+		p.CurrentBet = p.Wallet
+		p.Wallet = 0
+	} else {
+		p.CurrentBet += ammount
+		p.Wallet -= ammount
+	}
 }

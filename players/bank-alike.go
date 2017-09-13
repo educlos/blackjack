@@ -10,12 +10,13 @@ type BankAlike struct {
 	Player
 }
 
-func NewBankAlike(name string) (b BankAlike) {
+func NewBankAlike(name string, walletValue int) (b BankAlike) {
 	b.Name = name
+	b.Wallet = walletValue
 	return
 }
 
-func (p *BankAlike) Play(d *cards.Deck) {
+func (p *BankAlike) Play(d *cards.Deck, currentHandValue int) {
 	for p.shouldPlay() {
 		fmt.Printf("%s\n", p.GetName())
 		c := d.DealNextCard()
@@ -32,4 +33,14 @@ func (p *BankAlike) shouldPlay() bool {
 		return true
 	}
 	return false
+}
+
+func (p *BankAlike) Bet(ammount int) {
+	if ammount > p.Wallet {
+		p.CurrentBet = p.Wallet
+		p.Wallet = 0
+	} else {
+		p.CurrentBet += ammount
+		p.Wallet -= ammount
+	}
 }

@@ -1,19 +1,32 @@
 package players
 
-import "github.com/educlos/blackjack/cards"
+import (
+	"fmt"
+
+	"github.com/educlos/blackjack/cards"
+)
 
 type Playable interface {
 	GetHandValue() int
 	GetHand() string
 	GetName() string
 	Init(d *cards.Deck)
-	Play(d *cards.Deck)
+	Play(*cards.Deck, int)
+	Bet(int)
+	Lose()
+	Win(int)
+	ShowMoney() string
+	NewRound()
+	GetWallet() int
+	GetCurrentBet() int
 }
 
 type Player struct {
 	Name       string
 	Hand       []cards.Card
 	IsHandSoft bool
+	Wallet     int
+	CurrentBet int
 }
 
 func (p *Player) GetName() string {
@@ -56,13 +69,41 @@ func (p *Player) GetHand() string {
 	return out
 }
 
+func (p *Player) GetWallet() int {
+	return p.Wallet
+}
+
+func (p *Player) GetCurrentBet() int {
+	return p.CurrentBet
+}
+
 func (p *Player) Init(d *cards.Deck) {
-	for i := 0; i < 2; i++ {
-		c := d.DealNextCard()
-		p.addNewCard(c)
-	}
+	c := d.DealNextCard()
+	p.addNewCard(c)
 }
 
 func (p *Player) addNewCard(c cards.Card) {
 	p.Hand = append(p.Hand, c)
+}
+
+func (p *Player) Lose() {
+	p.CurrentBet = 0
+}
+
+func (p *Player) Win(ratio int) {
+	p.Wallet = p.Wallet + p.CurrentBet + p.CurrentBet*ratio
+	p.CurrentBet = 0
+}
+
+func (p *Player) ShowMoney() string {
+	out := fmt.Sprintf("%s has %d$", p.Name, p.Wallet)
+	if p.CurrentBet != 0 {
+		out += fmt.Sprintf(" (and %d$ on bet)", p.CurrentBet)
+	}
+	return out
+}
+
+func (p *Player) NewRound() {
+	p.Hand = []cards.Card{}
+	p.IsHandSoft = false
 }

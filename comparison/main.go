@@ -10,7 +10,9 @@ import (
 
 var numberOfRounds = 10000
 var numberOfDeck = 4
+var defaultWallet = 100
 
+// not working anymore
 func main() {
 
 	type counts struct {
@@ -22,22 +24,22 @@ func main() {
 		BankAlike   counts `json:"bank-alike"`
 		Random      counts `json:"random"`
 		SmartRandom counts `json:"smart-random"`
-		Basic       counts `json:"basic"`
+		Basic       counts `json:"basic-strategy"`
 	}
 
 	for i := 0; i < numberOfRounds; i++ {
 		var playersArray []players.Playable
 
-		bankAlikePlayer := players.NewBankAlike("bankAlike")
+		bankAlikePlayer := players.NewBankAlike("bankAlike", defaultWallet)
 		playersArray = append(playersArray, &bankAlikePlayer)
 
-		randomPlayer := players.NewRandomPlayer("random")
+		randomPlayer := players.NewRandomPlayer("random", defaultWallet)
 		playersArray = append(playersArray, &randomPlayer)
 
-		smartRandomPlayer := players.NewSmartRandomPlayer("smartRandom")
+		smartRandomPlayer := players.NewSmartRandomPlayer("smartRandom", defaultWallet)
 		playersArray = append(playersArray, &smartRandomPlayer)
 
-		basicPlayer := players.NewBasic("basicPlayer")
+		basicPlayer := players.NewBasic("basicPlayer", defaultWallet)
 		playersArray = append(playersArray, &basicPlayer)
 
 		bank := players.NewBank()

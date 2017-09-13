@@ -10,13 +10,14 @@ type Basic struct {
 	Player
 }
 
-func NewBasic(name string) (r Basic) {
+func NewBasic(name string, walletValue int) (r Basic) {
 	r.Name = name
+	r.Wallet = walletValue
 	return
 }
 
-func (p *Basic) Play(d *cards.Deck) {
-	for p.shouldPlay() {
+func (p *Basic) Play(d *cards.Deck, currentHandValue int) {
+	for p.shouldPlay(currentHandValue) {
 		fmt.Printf("%s\n", p.GetName())
 		c := d.DealNextCard()
 		fmt.Printf("\ttaking a card: %s\n", c.Get())
@@ -37,12 +38,11 @@ func (p *Basic) GetFirstHandWithoutAce() (cards.Card, error) {
 }
 
 // Based on https://www.blackjackinfo.com/blackjack-basic-strategy-engine/
-func (p *Basic) shouldPlay() bool {
+func (p *Basic) shouldPlay(bVal int) bool {
 	pVal := p.GetHandValue()
 	if pVal >= 21 {
 		return false
 	}
-	bVal := GetBankHandValue()
 	if !p.IsHandSoft {
 		if pVal <= 11 {
 			return true
@@ -90,4 +90,14 @@ func (p *Basic) shouldPlay() bool {
 		}
 	}
 	return false
+}
+
+func (p *Basic) Bet(ammount int) {
+	if ammount > p.Wallet {
+		p.CurrentBet = p.Wallet
+		p.Wallet = 0
+	} else {
+		p.CurrentBet += ammount
+		p.Wallet -= ammount
+	}
 }
