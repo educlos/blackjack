@@ -4,21 +4,22 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/educlos/blackjack/cards"
+	"github.com/educlos/blackjack/house"
 	"github.com/educlos/blackjack/players"
 )
 
-var numberOfRounds = 10000
-var numberOfDeck = 4
+var numberOfRounds = 10
+var numberOfDeck = 6
 var defaultWallet = 100
+var numberOfRoundsPerDeck = 5
+var numberOfRoundsMax = 1000
+var bankMoney = 1000
 
-// not working anymore
 func main() {
 
 	type counts struct {
 		Victories int `json:"victories"`
 		Loss      int `json:"loss"`
-		Ties      int `json:"ties"`
 	}
 	var stats struct {
 		BankAlike   counts `json:"bank-alike"`
@@ -28,89 +29,39 @@ func main() {
 	}
 
 	for i := 0; i < numberOfRounds; i++ {
-		var playersArray []players.Playable
+		table := house.NewTable(numberOfDeck, numberOfRoundsPerDeck, numberOfRoundsMax, bankMoney)
 
 		bankAlikePlayer := players.NewBankAlike("bankAlike", defaultWallet)
-		playersArray = append(playersArray, &bankAlikePlayer)
+		table.RegisterPlayer(&bankAlikePlayer)
 
 		randomPlayer := players.NewRandomPlayer("random", defaultWallet)
-		playersArray = append(playersArray, &randomPlayer)
+		table.RegisterPlayer(&randomPlayer)
 
 		smartRandomPlayer := players.NewSmartRandomPlayer("smartRandom", defaultWallet)
-		playersArray = append(playersArray, &smartRandomPlayer)
+		table.RegisterPlayer(&smartRandomPlayer)
 
 		basicPlayer := players.NewBasic("basicPlayer", defaultWallet)
-		playersArray = append(playersArray, &basicPlayer)
+		table.RegisterPlayer(&basicPlayer)
 
-		bank := players.NewBank()
+		// humanPlayer := players.NewHumanPlayer()
+		// table.RegisterPlayer(&humanPlayer)
 
-		d := cards.GetNewDeck(numberOfDeck)
-		// init
-		for _, p := range playersArray {
-			p.Init(&d)
-		}
-		bank.Init(&d)
-
-		losingPlayers := 0
-		// Actual play
-		for _, p := range playersArray {
-			fmt.Printf("%s's hand: %s\n", p.GetName(), p.GetHand())
-		}
-		fmt.Printf("bank's hand: %s\n", bank.GetHand())
-		fmt.Println()
-
-		for _, p := range playersArray {
-			p.Play(&d)
-			if p.GetHandValue() > 21 {
-				losingPlayers += 1
-			}
-		}
-
-		if losingPlayers < len(playersArray) {
-			bank.Play(&d)
-		} else {
-			fmt.Printf("bank not playing, everyone lost\n")
-		}
-
-		bankVal := bank.GetHandValue()
-		if bankVal > 21 {
-			fmt.Println("Bank lost")
-		}
-		for _, p := range playersArray {
-			pVal := p.GetHandValue()
-			if pVal > 21 || pVal < bankVal && bankVal <= 21 {
-				switch p.GetName() {
-				case "bankAlike":
-					stats.BankAlike.Loss = stats.BankAlike.Loss + 1
-				case "random":
-					stats.Random.Loss = stats.Random.Loss + 1
-				case "smartRandom":
-					stats.SmartRandom.Loss = stats.SmartRandom.Loss + 1
-				case "basicPlayer":
-					stats.Basic.Loss = stats.Basic.Loss + 1
-				}
-			} else if pVal == bankVal {
-				switch p.GetName() {
-				case "bankAlike":
-					stats.BankAlike.Ties = stats.BankAlike.Ties + 1
-				case "random":
-					stats.Random.Ties = stats.Random.Ties + 1
-				case "smartRandom":
-					stats.SmartRandom.Ties = stats.SmartRandom.Ties + 1
-				case "basicPlayer":
-					stats.Basic.Ties = stats.Basic.Ties + 1
-				}
-			} else {
-				switch p.GetName() {
-				case "bankAlike":
-					stats.BankAlike.Victories = stats.BankAlike.Victories + 1
-				case "random":
-					stats.Random.Victories = stats.Random.Victories + 1
-				case "smartRandom":
-					stats.SmartRandom.Victories = stats.SmartRandom.Victories + 1
-				case "basicPlayer":
-					stats.Basic.Victories = stats.Basic.Victories + 1
-				}
+		table.Play()
+		s := table.GetStats()
+		for p, s := range s.PlayersStats {
+			switch p.GetName() {
+			case "bankAlike":
+				stats.BankAlike.Loss += s.Loss
+				stats.BankAlike.Victories += s.Victories
+			case "random":
+				stats.Random.Loss += s.Loss
+				stats.Random.Victories += s.Victories
+			case "smartRandom":
+				stats.SmartRandom.Loss += s.Loss
+				stats.SmartRandom.Victories += s.Victories
+			case "basicPlayer":
+				stats.Basic.Loss += s.Loss
+				stats.Basic.Victories += s.Victories
 			}
 		}
 	}

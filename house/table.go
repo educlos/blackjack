@@ -23,6 +23,12 @@ type stats struct {
 	moneyWonByTheBank  int
 	moneyLostByTheBank int
 	bankBalance        int
+	PlayersStats       map[players.Playable]counts
+}
+
+type counts struct {
+	Victories int `json:"victories"`
+	Loss      int `json:"loss"`
 }
 
 func NewTable(numberOfDeck, numberOfRoundsPerDeck, numberOfRoundsMax, bankMoney int) *Table {
@@ -32,6 +38,7 @@ func NewTable(numberOfDeck, numberOfRoundsPerDeck, numberOfRoundsMax, bankMoney 
 	t.numberOfDeck = numberOfDeck
 	t.numberOfRoundsPerDeck = numberOfRoundsPerDeck
 	t.numberOfRoundsMax = numberOfRoundsMax
+	t.stats.PlayersStats = make(map[players.Playable]counts)
 	t.deck = &d
 	return &t
 }
@@ -48,9 +55,15 @@ func (t *Table) RemovePlayer(i int) {
 	}
 }
 
+func (t *Table) GetStats() stats {
+	return t.stats
+}
+
 func (t *Table) Play() {
 	rounds := 0
 	losers := make(map[players.Playable]int)
+	moneyWonByTheBank := 0
+	moneyLostByTheBank := 0
 	for {
 		rounds++
 		if len(t.participants) == 0 || rounds > t.numberOfRoundsMax || t.bank.GetWallet() == 0 {
@@ -96,6 +109,7 @@ func (t *Table) Play() {
 			if p.GetHandValue() == 21 {
 				fmt.Printf("%s's hand: %s (natural blackjack)\n", p.GetName(), p.GetHand())
 				t.bank.PayPlayer(p.GetCurrentBet() * 3)
+				moneyLostByTheBank += p.GetCurrentBet() * 3
 				p.Win(3)
 			}
 			fmt.Printf("%s's hand: %s\n", p.GetName(), p.GetHand())
@@ -127,12 +141,14 @@ func (t *Table) Play() {
 			if pVal > 21 || pVal < bankVal && bankVal <= 21 {
 				fmt.Printf("%s lost with %d\n", p.GetName(), p.GetHandValue())
 				t.bank.Win(p.GetCurrentBet())
+				moneyWonByTheBank += p.GetCurrentBet()
 				p.Lose()
 			} else if pVal == bankVal && pVal != 21 {
 				fmt.Printf("%s pushed with %d\n", p.GetName(), p.GetHandValue())
 			} else {
 				fmt.Printf("%s won with %d\n", p.GetName(), p.GetHandValue())
 				t.bank.PayPlayer(p.GetCurrentBet())
+				moneyLostByTheBank += p.GetCurrentBet()
 				p.Win(1)
 			}
 			fmt.Println(p.ShowMoney())
@@ -141,11 +157,26 @@ func (t *Table) Play() {
 
 	t.stats.numberOfRounds = rounds
 	t.stats.whoLostWhen = losers
+	t.stats.moneyLostByTheBank = moneyLostByTheBank
+	t.stats.moneyWonByTheBank = moneyWonByTheBank
+	t.stats.bankBalance = moneyWonByTheBank - moneyLostByTheBank
 	fmt.Printf("\n\n~~~~~ Final stats ~~~~~\n\n")
 	fmt.Printf("Number of rounds: %d\n", t.stats.numberOfRounds)
 	fmt.Printf("Bank's has %d$ left (initial: %d$)\n", t.bank.GetWallet(), t.bank.InitialWallet)
+	fmt.Printf("Bank's has won %d$, lost %d$, for a balance of %d$\n", t.stats.moneyWonByTheBank, t.stats.moneyLostByTheBank, t.stats.bankBalance)
 	for p, r := range t.stats.whoLostWhen {
 		fmt.Printf("%s lost at round %d\n", p.GetName(), r)
+		tmp := t.stats.PlayersStats[p]
+		tmp.Loss = tmp.Loss + 1
+		t.stats.PlayersStats[p] = tmp
+	}
+	for _, p := range t.participants {
+		_, ok := losers[p]
+		if !ok {
+			tmp := t.stats.PlayersStats[p]
+			tmp.Victories = tmp.Victories + 1
+			t.stats.PlayersStats[p] = tmp
+		}
 	}
 }
 
