@@ -13,6 +13,7 @@ type Playable interface {
 	Init(d *cards.Deck)
 	Play(*cards.Deck, int)
 	Bet(int)
+	DoubleBetIfPossible()
 	Lose()
 	Win(int)
 	ShowMoney() string

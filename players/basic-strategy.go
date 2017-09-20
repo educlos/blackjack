@@ -17,14 +17,25 @@ func NewBasic(name string, walletValue int) (r Basic) {
 }
 
 func (p *Basic) Play(d *cards.Deck, currentHandValue int) {
+	fmt.Printf("%s\n", p.GetName())
+	played := false
+	// Check with bank if double is allowed
+	if p.shouldDoubleBet(currentHandValue) {
+		p.DoubleBetIfPossible()
+		played = true
+	}
+
 	for p.shouldPlay(currentHandValue) {
-		fmt.Printf("%s\n", p.GetName())
+		played = true
 		c := d.DealNextCard()
 		fmt.Printf("\ttaking a card: %s\n", c.Get())
 		p.addNewCard(c)
 		fmt.Printf("\tNew hand value: %d\n", p.GetHandValue())
 		fmt.Printf("\tNew hand: %s\n", p.GetHand())
 		fmt.Println()
+	}
+	if !played {
+		fmt.Println("\tpassed")
 	}
 }
 
@@ -65,20 +76,7 @@ func (p *Basic) shouldPlay(bVal int) bool {
 	} else {
 		firstCard, _ := p.GetFirstHandWithoutAce()
 		switch firstCard.Get() {
-		case "2", "3":
-			if bVal == 5 || bVal == 6 {
-				return false
-			}
-			return true
-		case "4", "5":
-			if bVal == 4 || bVal == 5 || bVal == 6 {
-				return false
-			}
-			return true
-		case "6":
-			if bVal == 3 || bVal == 4 || bVal == 5 || bVal == 6 {
-				return false
-			}
+		case "2", "3", "4", "5", "6":
 			return true
 		case "7":
 			if bVal <= 8 {
@@ -100,4 +98,67 @@ func (p *Basic) Bet(ammount int) {
 		p.CurrentBet += ammount
 		p.Wallet -= ammount
 	}
+}
+
+func (p *Basic) DoubleBetIfPossible() {
+	if p.CurrentBet < p.Wallet {
+		p.Bet(p.CurrentBet)
+		fmt.Printf("\tDoubling bet\n")
+	}
+}
+
+func (p *Basic) shouldDoubleBet(bVal int) bool {
+	pVal := p.GetHandValue()
+	if pVal >= 21 {
+		return false
+	}
+	if !p.IsHandSoft {
+		if pVal == 9 {
+			if bVal == 3 || bVal == 4 || bVal == 5 || bVal == 6 {
+				return true
+			}
+			return false
+		}
+		if pVal == 10 {
+			if bVal == 10 || bVal == 1 {
+				return false
+			}
+			return true
+		}
+		if pVal == 11 {
+			return true
+		}
+	} else {
+		firstCard, _ := p.GetFirstHandWithoutAce()
+		switch firstCard.Get() {
+		case "2", "3":
+			if bVal == 5 || bVal == 6 {
+				return true
+			}
+			return false
+		case "4", "5":
+			if bVal == 4 || bVal == 5 || bVal == 6 {
+				return true
+			}
+			return false
+		case "6":
+			if bVal == 3 || bVal == 4 || bVal == 5 || bVal == 6 {
+				return true
+			}
+			return false
+		case "7":
+			if bVal <= 6 {
+				return true
+			}
+			return false
+		case "8":
+			if bVal == 6 {
+				return true
+			}
+			return false
+		case "9":
+			return false
+		}
+	}
+	return false
 }

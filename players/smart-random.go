@@ -76,3 +76,10 @@ func (p *SmartRandomPlayer) Bet(ammount int) {
 		p.Wallet -= ammount
 	}
 }
+
+func (p *SmartRandomPlayer) DoubleBetIfPossible() {
+	if p.CurrentBet < p.Wallet {
+		p.Bet(p.CurrentBet)
+		fmt.Printf("\tDoubling bet\n")
+	}
+}

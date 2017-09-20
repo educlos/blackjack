@@ -29,8 +29,8 @@ func main() {
 	bp := players.NewBasic("basicPlayer2", defaultWallet)
 	table.RegisterPlayer(&bp)
 
-	// humanPlayer := players.NewHumanPlayer()
-	// table.RegisterPlayer(&humanPlayer)
+	humanPlayer := players.NewHumanPlayer()
+	table.RegisterPlayer(&humanPlayer)
 
 	table.Play()
 }

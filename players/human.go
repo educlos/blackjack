@@ -16,7 +16,7 @@ func NewHumanPlayer() (h Human) {
 	inputName := ""
 	fmt.Scanf("%s\n", &inputName)
 
-	fmt.Printf("What is %s's wallet value?", inputName)
+	fmt.Printf("What is %s's wallet value?\n", inputName)
 	inputWallet := 0
 	fmt.Scanf("%d\n", &inputWallet)
 
@@ -26,6 +26,10 @@ func NewHumanPlayer() (h Human) {
 }
 
 func (p *Human) Play(d *cards.Deck, currentHandValue int) {
+	if p.shouldDoubleBet() {
+		fmt.Printf("%s\n", p.GetName())
+		p.DoubleBetIfPossible()
+	}
 	for p.shouldPlay() {
 		fmt.Printf("%s\n", p.GetName())
 		c := d.DealNextCard()
@@ -76,4 +80,29 @@ func (p *Human) Bet(ammount int) {
 		p.CurrentBet += inputBet
 		p.Wallet -= inputBet
 	}
+}
+
+func (p *Human) DoubleBetIfPossible() {
+	if p.CurrentBet < p.Wallet {
+		p.Wallet -= p.CurrentBet
+		p.CurrentBet *= 2
+		fmt.Printf("\tDoubling bet\n")
+	} else {
+		fmt.Printf("\tDoubling bet is not allowed (not enought money left)\n")
+	}
+}
+
+func (p *Human) shouldDoubleBet() bool {
+	fmt.Printf("Should player %s bouble his bet? (hand: %s, current bet: %d, wallet: %d)\n", p.Name, p.GetHand(), p.CurrentBet, p.Wallet)
+	answer := ""
+	fmt.Scanf("%s\n", &answer)
+	switch strings.ToLower(answer) {
+	case "y", "yes", "oui", "o":
+		return true
+	case "n", "no", "non":
+		return false
+	}
+
+	fmt.Printf("Unknown input %s. Not doubling\n", answer)
+	return false
 }

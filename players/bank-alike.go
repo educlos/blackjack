@@ -44,3 +44,10 @@ func (p *BankAlike) Bet(ammount int) {
 		p.Wallet -= ammount
 	}
 }
+
+func (p *BankAlike) DoubleBetIfPossible() {
+	if p.CurrentBet < p.Wallet {
+		p.Bet(p.CurrentBet)
+		fmt.Printf("\tDoubling bet\n")
+	}
+}

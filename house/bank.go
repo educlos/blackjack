@@ -143,6 +143,8 @@ func (p *Bank) GetWallet() int {
 // For player interface
 func (p *Bank) Bet(ammount int) {}
 
+func (p *Bank) DoubleBetIfPossible() {}
+
 func (p *Bank) Lose() {}
 
 func (p *Bank) ShowMoney() string {
